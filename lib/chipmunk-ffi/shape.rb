@@ -52,6 +52,8 @@ module CP
   func :cpShapePointQuery, [:pointer, Vect.by_value], :int
 	func :cpShapeSegmentQuery, [:pointer, Vect.by_value, Vect.by_value, :pointer], :int
   func :cpPolyValidate, [:pointer, :int], :int
+  func :cpPolyShapeGetNumVerts, [ShapeStruct], :int
+  func :cpPolyShapeGetVert, [ShapeStruct, :int], Vect.by_value
 
   module Shape
     class SegmentQueryInfo
@@ -207,6 +209,13 @@ module CP
         ptr = CP.cpPolyShapeNew body.struct.pointer, verts.size, mem_pointer, offset_vec.struct
         @struct = ShapeStruct.new ptr
         set_data_pointer
+      end
+
+      def verts
+        n_verts = CP.cpPolyShapeGetNumVerts(@struct)
+        (0...n_verts).map do |i|
+          Vec2.new CP.cpPolyShapeGetVert(@struct, i)
+        end
       end
       
       def self.pointer_for_verts(verts)
